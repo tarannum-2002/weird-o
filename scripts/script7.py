@@ -1,5 +1,11 @@
 import base64
 
+DNA_REVERTED_SEQUENCE_FILE = "scripts/dna.txt"
+
+DNA_SEQUENCE_FILE = "scripts/dna_sequence.txt"
+
+PROTEIN_FILE = "scripts/protein.txt"
+
 table = {
     'ATA': 'I1', 'ATC': 'I2', 'ATT': 'I3', 'ATG': 'M1',
     'ACA': 'T1', 'ACC': 'T2', 'ACG': 'T3', 'ACT': 'T4',
@@ -36,6 +42,32 @@ reversed_table = {'I1': 'ATA', 'I2': 'ATC', 'I3': 'ATT', 'M1': 'ATG', 'T1': 'ACA
                   'Y1': 'TAC', 'Y2': 'TAT', '_1': 'TAA', '_2': 'TAG', 'C1': 'TGC', 'C2': 'TGT', '_3': 'TGA',
                   'W1': 'TGG'}
 
+amino_acid_acronyms = {
+    'I1': 'Isoleucine', 'I2': 'Isoleucine', 'I3': 'Isoleucine',
+    'M1': 'Methionine',
+    'T1': 'Threonine', 'T2': 'Threonine', 'T3': 'Threonine', 'T4': 'Threonine',
+    'N1': 'Asparagine', 'N2': 'Asparagine',
+    'K1': 'Lysine', 'K2': 'Lysine',
+    'S1': 'Serine', 'S2': 'Serine',
+    'R1': 'Arginine', 'R2': 'Arginine', 'R3': 'Arginine', 'R4': 'Arginine', 'R5': 'Arginine', 'R6': 'Arginine',
+    'L1': 'Leucine', 'L2': 'Leucine', 'L3': 'Leucine', 'L4': 'Leucine', 'L5': 'Leucine', 'L6': 'Leucine',
+    'P1': 'Proline', 'P2': 'Proline', 'P3': 'Proline', 'P4': 'Proline',
+    'H1': 'Histidine', 'H2': 'Histidine',
+    'Q1': 'Glutamine', 'Q2': 'Glutamine',
+    'V1': 'Valine', 'V2': 'Valine', 'V3': 'Valine', 'V4': 'Valine',
+    'A1': 'Alanine', 'A2': 'Alanine', 'A3': 'Alanine', 'A4': 'Alanine',
+    'D1': 'Aspartic Acid', 'D2': 'Aspartic Acid',
+    'E1': 'Glutamic Acid', 'E2': 'Glutamic Acid',
+    'G1': 'Glycine', 'G2': 'Glycine', 'G3': 'Glycine', 'G4': 'Glycine',
+    'S3': 'Serine', 'S4': 'Serine', 'S5': 'Serine', 'S6': 'Serine',
+    'F1': 'Phenylalanine', 'F2': 'Phenylalanine',
+    'Y1': 'Tyrosine', 'Y2': 'Tyrosine',
+    'C1': 'Cysteine', 'C2': 'Cysteine',
+    '_1': 'Stop Codon', '_2': 'Stop Codon', '_3': 'Stop Codon',
+    'W1': 'Tryptophan'
+}
+
+
 
 # Step 1: Convert Image to Base64
 def image_to_base64(image_path):
@@ -61,13 +93,13 @@ def binary_to_dna(binary_string):
 
 
 # Step 4: Save DNA Sequence to a File
-def save_dna_to_file(dna_sequence, filename="scripts/dna_sequence.txt"):
+def save_dna_to_file(dna_sequence, filename=DNA_SEQUENCE_FILE):
     with open(filename, "w") as file:
         file.write(dna_sequence)
 
 
 # Step6: Save protein from DNA
-def save_protein_to_a_file(filename="scripts/dna_sequence.txt"):
+def save_protein_to_a_file(filename=DNA_SEQUENCE_FILE):
     with open(filename, "r") as file:
         dna_sequence = file.read()
 
@@ -78,13 +110,14 @@ def save_protein_to_a_file(filename="scripts/dna_sequence.txt"):
             protein += table[codon]
     else:
         print("not possible")
-    with open("scripts/protein.txt", "w") as file:
+    with open(PROTEIN_FILE, "w") as file:
         file.write(protein)
     return protein
 
 
 def protein_to_dna(protein_sequence, reverse_table):
     dna_sequence = ""
+    amino_acids = []
     # Iterate over the protein sequence in steps of 2
     for i in range(0, len(protein_sequence), 2):
         # Read two characters (or less if at the end of the sequence)
@@ -93,19 +126,27 @@ def protein_to_dna(protein_sequence, reverse_table):
         if protein_chunk in reverse_table:
             dna_sequence += reverse_table[protein_chunk]
 
+        if protein_chunk in amino_acid_acronyms:
+            amino_acids.append(amino_acid_acronyms[protein_chunk])
+
         else:
             raise ValueError(f"Unknown protein {protein_chunk} encountered in sequence.")
 
         # Write the result to the file if output_file is specified
-    output_file = "scripts/dna.txt"
+    output_file = DNA_REVERTED_SEQUENCE_FILE
     with open(output_file, "w") as f:
         f.write(dna_sequence)
+
+    with open("scripts/amino_acids.txt", "a") as f:
+        for amino_acid in amino_acids:
+            f.write(amino_acid + "\n")
+
 
     return dna_sequence
 
 
 # Step 5: Load DNA Sequence from File
-def load_dna_from_file(filename="scripts/dna.txt"):
+def load_dna_from_file(filename=DNA_REVERTED_SEQUENCE_FILE):
     with open(filename, "r") as file:
         dna_sequence = file.read()
     return dna_sequence
