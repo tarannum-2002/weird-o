@@ -104,12 +104,18 @@ def save_protein_to_a_file(filename=DNA_SEQUENCE_FILE):
         dna_sequence = file.read()
 
     protein = ""
-    if len(dna_sequence) % 3 == 0:
-        for i in range(0, len(dna_sequence), 3):
-            codon = dna_sequence[i:i + 3]
-            protein += table[codon]
-    else:
-        print("not possible")
+    remainder = len(dna_sequence) % 3  # Check if the sequence is divisible by 3
+
+    # Pad the sequence if necessary
+    if remainder != 0:
+        print(f"DNA sequence length ({len(dna_sequence)}) is not divisible by 3. Padding with A.")
+        dna_sequence += "A" * (3 - remainder)  # Add padding to make the length divisible by 3
+
+    # Translate DNA to protein
+    for i in range(0, len(dna_sequence), 3):
+        codon = dna_sequence[i:i + 3]
+        protein += table.get(codon, "?")  # Use "?" if codon is invalid
+
     with open(PROTEIN_FILE, "w") as file:
         file.write(protein)
     return protein
